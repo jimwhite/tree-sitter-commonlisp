@@ -36,9 +36,9 @@
     "url": "git://github.com/theHamsta/tree-sitter-commonlisp"
   },
   "devDependencies": {
+    "prebuildify": "^6.0.0",
     "tree-sitter-cli": "^0.24.4",
-    "tree-sitter-clojure": "git@github.com:theHamsta/tree-sitter-clojure.git#commonlisp",
-    "prebuildify": "^6.0.0"
+    "tree-sitter-clojure": "github:theHamsta/tree-sitter-clojure#commonlisp"
   },
   "files": [
     "grammar.js",
