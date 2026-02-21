@@ -18,7 +18,7 @@
     }
   ],
   "metadata": {
-    "version": "0.4.1",
+    "version": "0.4.2",
     "license": "MIT",
     "description": "Common Lisp grammar for tree-sitter",
     "authors": [
