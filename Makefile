@@ -125,4 +125,22 @@ clean:
 test:
 	$(TS_BIN) test
 
-.PHONY: all install uninstall clean test pip-install install-ts-cli
+# --- commonlisp_noformat variant ---
+# CL grammar with plain string literals (no format specifier sub-parsing).
+# Avoids tree-sitter error recovery issues from structural chars in format strings.
+
+NOFORMAT_DIR := commonlisp_noformat
+
+$(NOFORMAT_DIR)/node_modules: $(NOFORMAT_DIR)/package.json
+	cd $(NOFORMAT_DIR) && npm install --ignore-scripts
+	@touch $@
+
+$(NOFORMAT_DIR)/src/parser.c: $(NOFORMAT_DIR)/grammar.js grammar.js $(NOFORMAT_DIR)/node_modules
+	cd $(NOFORMAT_DIR) && $(TS_BIN) generate
+
+noformat: $(NOFORMAT_DIR)/src/parser.c
+
+noformat-pip-install: $(NOFORMAT_DIR)/src/parser.c
+	cd $(NOFORMAT_DIR) && pip install -e .
+
+.PHONY: all install uninstall clean test pip-install install-ts-cli noformat noformat-pip-install

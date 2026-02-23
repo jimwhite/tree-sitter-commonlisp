@@ -169,39 +169,37 @@ module.exports = grammar(clojure, {
                 field('close', ")"))),
 
         _format_token: $ => choice(alias(NUMBER, $.num_lit), seq("'", alias(/./, $.char_lit))),
-        // https://en.wikipedia.org/wiki/Format_Common_Lisp)
-        format_prefix_parameters: _ => choice('v', 'V', '#'),
-        format_modifiers: $ => seq(repeat(choice($._format_token, ',')), choice('@', '@:', ':', ':@')),
-        //format_modifiers: _ => choice('@', '@:', ':', ':@'),
+
+        // Per CL spec §22.3: prefix parameters are comma-separated values
+        // (signed integers, 'char, V/v, #)
+        format_prefix_parameters: _ => /[0-9,vV#'+\-]+/,
+
+        // Colon and at-sign modifiers (CL spec §22.3)
+        format_modifiers: _ => choice('@', '@:', ':', ':@'),
+
+        // The directive character (CL spec §22.3)
+        // Standard CL: C % & | ~ R D B O X F E G $ A S W _ I T * ? / ; ^ P
+        // Plus digits 0-9 for ACL2 fmt argument indices
+        // NOTE: Bracket characters ( ) [ ] { } < > are intentionally excluded.
+        // While they are valid CL format directives (e.g., ~( ~) ~[ ~] ~{ ~} ~< ~>),
+        // including them caused tree-sitter error recovery to consume structural
+        // Lisp parens from outside the string literal. The brackets are still valid
+        // string content; they just won't be highlighted as format directives.
         format_directive_type: $ => choice(
-            seq(optional(field('repetitions', $._format_token)), choice('~', '%', '&', '|')),
-            /[cC]/,
-            /\^/,
+            // ~/name/ user-defined format function (CL spec §22.3.5.4)
+            seq('/', optional(seq(choice(alias($._package_lit_without_slash, $.package_lit), $._sym_lit_without_slash), '/'))),
+            // Tilde-newline directive
             '\n',
             '\r',
-            /[pP]/,
-            /[iI]/,
-            /[wW]/,
-            /[aA]/,
-            '_',
-            /[()]/,
-            /[{}]/,
-            /[\[\]]/,
-            /[<>]/,
-            ';',
-            seq(field('numberOfArgs', $._format_token), '*'),
-            seq('/', optional(seq(choice(alias($._package_lit_without_slash, $.package_lit), $._sym_lit_without_slash), '/'))),
-            '?',
-            "Newline",
-            seq(repeat(choice($._format_token, ',')), /[$rRbBdDgGxXeEoOsStTfF]/),
-            /[a-zA-Z!*=]/,  // catch-all for implementation-specific directives
+            // Any single non-bracket character that is a valid format directive
+            /[a-zA-Z0-9_$%&|~^;?!*=]/,
         ),
         format_specifier: $ =>
             prec.left(seq(
                 '~',
                 optional($.format_prefix_parameters),
                 optional($.format_modifiers),
-                prec(5, $.format_directive_type),
+                optional(prec(5, $.format_directive_type)),
             )),
 
         str_lit: $ =>
@@ -210,9 +208,13 @@ module.exports = grammar(clojure, {
                 repeat(choice(
                     token.immediate(prec(1, /[^\\~"]+/)),
                     token.immediate(/\\./),
-                    $.format_specifier,
+                    // Format specifiers are parsed for syntax highlighting
+                    // but must never prevent correct string boundary detection.
+                    // Use an inline token for ~ followed by safe characters only.
+                    // Structural chars like ()[]{}; are NOT consumed here so
+                    // error recovery can always find the closing quote.
+                    token.immediate(prec(0, /~[^"\\()[\]{};\n\r]*/)),
                 )),
-                optional('~'),
                 '"',
             ),
 

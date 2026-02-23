@@ -1,0 +1,32 @@
+{
+  "name": "tree-sitter-commonlisp-noformat",
+  "version": "0.1.0",
+  "description": "Common Lisp grammar for tree-sitter with plain string literals (no format specifier parsing)",
+  "main": "bindings/node",
+  "tree-sitter": [
+    {
+      "scope": "source.commonlisp-noformat",
+      "file-types": [
+        "lisp",
+        "lsp"
+      ]
+    }
+  ],
+  "scripts": {
+    "test": "tree-sitter generate && tree-sitter test",
+    "install": "node-gyp-build"
+  },
+  "author": "Jim White",
+  "license": "MIT",
+  "dependencies": {
+    "node-addon-api": "^7.1.0",
+    "node-gyp-build": "^4.8.0"
+  },
+  "peerDependencies": {
+    "tree-sitter": "^0.21.1"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.24.4",
+    "tree-sitter-clojure": "github:theHamsta/tree-sitter-clojure#commonlisp"
+  }
+}

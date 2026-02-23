@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: tree-sitter-commonlisp-noformat
+Version: 0.1.0
+Summary: Common Lisp grammar for tree-sitter with plain string literals (no format specifier parsing)
+License: MIT
+Project-URL: Homepage, https://github.com/jimwhite/tree-sitter-commonlisp
+Keywords: incremental,parsing,tree-sitter,commonlisp
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Topic :: Software Development :: Compilers
+Classifier: Topic :: Text Processing :: Linguistic
+Classifier: Typing :: Typed
+Requires-Python: >=3.9
+Provides-Extra: core
+Requires-Dist: tree-sitter~=0.21; extra == "core"

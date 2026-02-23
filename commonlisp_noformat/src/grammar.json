@@ -1,7 +1,7 @@
 {
   "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
-  "name": "commonlisp",
-  "inherits": "clojure",
+  "name": "commonlisp_noformat",
+  "inherits": "commonlisp",
   "rules": {
     "source": {
       "type": "REPEAT",
@@ -555,54 +555,50 @@
       }
     },
     "str_lit": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "\""
-        },
-        {
-          "type": "REPEAT",
-          "content": {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "IMMEDIATE_TOKEN",
-                "content": {
-                  "type": "PREC",
-                  "value": 1,
-                  "content": {
-                    "type": "PATTERN",
-                    "value": "[^\\\\~\"]+"
-                  }
-                }
-              },
-              {
-                "type": "IMMEDIATE_TOKEN",
-                "content": {
+      "type": "TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "\""
+          },
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "PATTERN",
+              "value": "[^\"\\\\]"
+            }
+          },
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "\\"
+                },
+                {
                   "type": "PATTERN",
-                  "value": "\\\\."
-                }
-              },
-              {
-                "type": "IMMEDIATE_TOKEN",
-                "content": {
-                  "type": "PREC",
-                  "value": 0,
+                  "value": "."
+                },
+                {
+                  "type": "REPEAT",
                   "content": {
                     "type": "PATTERN",
-                    "value": "~[^\"\\\\()[\\]{};\\n\\r]*"
+                    "value": "[^\"\\\\]"
                   }
                 }
-              }
-            ]
+              ]
+            }
+          },
+          {
+            "type": "STRING",
+            "value": "\""
           }
-        },
-        {
-          "type": "STRING",
-          "value": "\""
-        }
-      ]
+        ]
+      }
     },
     "char_lit": {
       "type": "SEQ",
