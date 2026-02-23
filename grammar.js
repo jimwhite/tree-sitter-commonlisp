@@ -190,10 +190,11 @@ module.exports = grammar(clojure, {
             /[<>]/,
             ';',
             seq(field('numberOfArgs', $._format_token), '*'),
-            seq('/', choice(alias($._package_lit_without_slash, $.package_lit), $._sym_lit_without_slash), '/'),
+            seq('/', optional(seq(choice(alias($._package_lit_without_slash, $.package_lit), $._sym_lit_without_slash), '/'))),
             '?',
             "Newline",
             seq(repeat(choice($._format_token, ',')), /[$rRbBdDgGxXeEoOsStTfF]/),
+            /[a-zA-Z!*=]/,  // catch-all for implementation-specific directives
         ),
         format_specifier: $ =>
             prec.left(seq(
@@ -208,7 +209,7 @@ module.exports = grammar(clojure, {
                 '"',
                 repeat(choice(
                     token.immediate(prec(1, /[^\\~"]+/)),
-                    token.immediate(seq(/\\./)),
+                    token.immediate(/\\./),
                     $.format_specifier,
                 )),
                 optional('~'),

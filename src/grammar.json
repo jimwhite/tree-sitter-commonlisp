@@ -580,13 +580,8 @@
               {
                 "type": "IMMEDIATE_TOKEN",
                 "content": {
-                  "type": "SEQ",
-                  "members": [
-                    {
-                      "type": "PATTERN",
-                      "value": "\\\\."
-                    }
-                  ]
+                  "type": "PATTERN",
+                  "value": "\\\\."
                 }
               },
               {
@@ -2272,23 +2267,36 @@
               "type": "CHOICE",
               "members": [
                 {
-                  "type": "ALIAS",
-                  "content": {
-                    "type": "SYMBOL",
-                    "name": "_package_lit_without_slash"
-                  },
-                  "named": true,
-                  "value": "package_lit"
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "CHOICE",
+                      "members": [
+                        {
+                          "type": "ALIAS",
+                          "content": {
+                            "type": "SYMBOL",
+                            "name": "_package_lit_without_slash"
+                          },
+                          "named": true,
+                          "value": "package_lit"
+                        },
+                        {
+                          "type": "SYMBOL",
+                          "name": "_sym_lit_without_slash"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "STRING",
+                      "value": "/"
+                    }
+                  ]
                 },
                 {
-                  "type": "SYMBOL",
-                  "name": "_sym_lit_without_slash"
+                  "type": "BLANK"
                 }
               ]
-            },
-            {
-              "type": "STRING",
-              "value": "/"
             }
           ]
         },
@@ -2324,6 +2332,10 @@
               "value": "[$rRbBdDgGxXeEoOsStTfF]"
             }
           ]
+        },
+        {
+          "type": "PATTERN",
+          "value": "[a-zA-Z!*=]"
         }
       ]
     },

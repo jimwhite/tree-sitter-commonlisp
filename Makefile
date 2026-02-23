@@ -81,8 +81,26 @@ $(LANGUAGE_NAME).pc: bindings/c/$(LANGUAGE_NAME).pc.in
 		-e 's|=$(PREFIX)|=$${prefix}|' \
 		-e 's|@PREFIX@|$(PREFIX)|' $< > $@
 
-$(SRC_DIR)/parser.c: grammar.js
-	$(TS) generate --no-bindings
+# tree-sitter CLI — prefer system binary, fall back to npx, install via cargo
+TS_BIN := $(shell command -v tree-sitter 2>/dev/null)
+ifeq ($(TS_BIN),)
+	TS_BIN := npx tree-sitter
+endif
+
+# Node deps (tree-sitter-clojure grammar that grammar.js extends)
+node_modules: package.json
+	npm install --ignore-scripts
+	@touch $@
+
+$(SRC_DIR)/parser.c: grammar.js node_modules
+	$(TS_BIN) generate
+
+install-ts-cli:
+	sudo apt-get update && sudo apt-get install -y libclang-dev
+	cargo install tree-sitter-cli
+
+pip-install: $(SRC_DIR)/parser.c
+	pip install -e .
 
 install: all
 	install -d '$(DESTDIR)$(INCLUDEDIR)'/tree_sitter '$(DESTDIR)$(PCLIBDIR)' '$(DESTDIR)$(LIBDIR)'
@@ -105,6 +123,6 @@ clean:
 	$(RM) $(OBJS) $(LANGUAGE_NAME).pc lib$(LANGUAGE_NAME).a lib$(LANGUAGE_NAME).$(SOEXT)
 
 test:
-	$(TS) test
+	$(TS_BIN) test
 
-.PHONY: all install uninstall clean test
+.PHONY: all install uninstall clean test pip-install install-ts-cli
